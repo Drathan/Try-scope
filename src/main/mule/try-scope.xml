@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="eec4f45d-ac74-4f95-aa30-8073eefff6fa" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="be961574-c619-4dec-96f3-2e018631e15c" />
+	<flow name="try-scopeFlow" doc:id="daf414ac-1a66-4423-81a6-0a4d7d48c6ba" >
+		<http:listener doc:name="Listener" doc:id="60a472dc-c10b-4bb3-9b7f-fbc83bf9cded" allowedMethods="POST" config-ref="HTTP_Listener_config" path="/Try"/>
+		<try doc:name="Try" doc:id="93200ecf-ef2c-4f7d-b6c1-56c25430015e" >
+			<validation:is-null doc:id="92a8c423-417c-427c-bf82-c1373367b0e9" config-ref="Validation_Config" value="#[payload]"/>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="65a8f609-768b-4357-aca3-c33ef7e4cde7" >
+					<set-payload value='#[["Error-Try scope"]]' doc:name="Set Payload" doc:id="d6fd7a18-cd8b-484b-a007-e94416898e73" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<set-payload value='#["success-main flow"]' doc:name="Set Payload" doc:id="2d577d87-16e6-40ae-aad3-35a11990fc76" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0dfe0e17-cdbe-40f9-b879-2465c4b5c533" >
+				<set-payload value='#["Error-main Flow"]' doc:name="Set Payload" doc:id="71afe85d-5693-4a77-b9ba-b37a061a8da1" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
